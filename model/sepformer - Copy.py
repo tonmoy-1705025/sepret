@@ -6,9 +6,6 @@ from torch.autograd import Variable
 import math
 import torch.nn.functional as F
 
-from retnet.RetNetDecoder import RetNetDecoder
-from retnet.config import RetNetConfig
-
 
 class Encoder(nn.Module):
 
@@ -68,6 +65,26 @@ class Decoder(nn.Module):
 
 
 class TransformerEncoderLayer(Module):
+    """
+        TransformerEncoderLayer is made up of self-attn and feedforward network.
+        This standard encoder layer is based on the paper "Attention Is All You Need".
+        Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez,
+        Lukasz Kaiser, and Illia Polosukhin. 2017. Attention is all you need. In Advances in
+        Neural Information Processing Systems, pages 6000-6010. Users may modify or implement
+        in a different way during application.
+
+        Args:
+            d_model: the number of expected features in the input (required).
+            nhead: the number of heads in the multiheadattention models (required).
+            dim_feedforward: the dimension of the feedforward network model (default=2048).
+            dropout: the dropout value (default=0.1).
+            activation: the activation function of intermediate layer, relu or gelu (default=relu).
+
+        Examples:
+            >>> encoder_layer = nn.TransformerEncoderLayer(d_model=512, nhead=8)
+            >>> src = torch.rand(10, 32, 512)
+            >>> out = encoder_layer(src)
+    """
 
     def __init__(self, d_model, nhead, dropout=0):
 
@@ -75,18 +92,7 @@ class TransformerEncoderLayer(Module):
 
         self.LayerNorm1 = nn.LayerNorm(normalized_shape=d_model)
 
-        # self.self_attn = MultiheadAttention(d_model, nhead, dropout=dropout)
-        #######################################
-        config = RetNetConfig(
-            decoder_embed_dim=d_model,
-            decoder_value_embed_dim=d_model,
-            decoder_retention_heads=8,
-            decoder_ffn_embed_dim=128,
-            decoder_layers=4,
-            dropout=dropout,
-        )
-        self.retnet = RetNetDecoder(config)
-        ########################################
+        self.self_attn = MultiheadAttention(d_model, nhead, dropout=dropout)
 
         self.Dropout1 = nn.Dropout(p=dropout)
 
@@ -103,11 +109,9 @@ class TransformerEncoderLayer(Module):
 
         z1 = self.LayerNorm1(z)
 
-        # z2 = self.self_attn(z1, z1, z1, attn_mask=None, key_padding_mask=None)[0]
+        z2 = self.self_attn(z1, z1, z1, attn_mask=None, key_padding_mask=None)[0]
 
-        z2 = self.retnet(z1.permute(1, 0, 2).contiguous())
-
-        z3 = self.Dropout1(z2.permute(1, 0, 2).contiguous()) + z
+        z3 = self.Dropout1(z2) + z
 
         z4 = self.LayerNorm2(z3)
 
