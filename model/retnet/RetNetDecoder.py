@@ -1,10 +1,10 @@
 import math
 import torch.nn as nn
 from fairscale.nn import checkpoint_wrapper, wrap
-from component.rms_norm import RMSNorm
+from .component.rms_norm import RMSNorm
 
-from DecoderLayer import DecoderLayer
-from RetNetRelPos import RetNetRelPos
+from .DecoderLayer import DecoderLayer
+from .RetNetRelPos import RetNetRelPos
 
 
 class RetNetDecoder(nn.Module):

@@ -6,8 +6,8 @@ from torch.autograd import Variable
 import math
 import torch.nn.functional as F
 
-from retnet.RetNetDecoder import RetNetDecoder
-from retnet.config import RetNetConfig
+from .retnet.RetNetDecoder import RetNetDecoder
+from .retnet.config import RetNetConfig
 
 
 class Encoder(nn.Module):

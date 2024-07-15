@@ -4,8 +4,8 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
-from component.rms_norm import RMSNorm
-from component.multiway_network import MultiwayWrapper
+from .component.rms_norm import RMSNorm
+from .component.multiway_network import MultiwayWrapper
 
 
 def rotate_every_two(x):
