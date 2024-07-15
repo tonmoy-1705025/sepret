@@ -3,13 +3,13 @@ import torch
 import numpy as np
 import torch.nn as nn
 
-from .component.feedforward_network import make_experts
-from .component.droppath import DropPath
-from .component.gate_linear_unit import GLU
-from .component.xmoe.moe_layer import MOELayer
-from .component.xmoe.routing import Top1Gate, Top2Gate
-from .component.rms_norm import RMSNorm
-from .multiscale_retention import MultiScaleRetention
+from retnet.component.feedforward_network import make_experts
+from retnet.component.droppath import DropPath
+from retnet.component.gate_linear_unit import GLU
+from retnet.component.xmoe.moe_layer import MOELayer
+from retnet.component.xmoe.routing import Top1Gate, Top2Gate
+from retnet.component.rms_norm import RMSNorm
+from retnet.multiscale_retention import MultiScaleRetention
 
 
 class DecoderLayer(nn.Module):
