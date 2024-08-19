@@ -85,7 +85,7 @@ class Trainer(object):
             print("------- Epoch Information( Training ) --------")
             tr_loss = self._run_one_epoch(epoch)                    # Training model
             self.write.add_scalar("train loss", tr_loss, epoch+1)
-            print("----------- Training Loss ----------")
+            print("\n----------- Training Loss ----------")
             print('Time : {0:.2f}s'.format(time.time() - start_time))
             print('Train Loss : {0:.3f}\n'.format(tr_loss))
 
@@ -189,6 +189,9 @@ class Trainer(object):
         print("Epoch | Itration | Average-Loss | Current-Loss | Time (s/batch)")
         print('-' * 85)
 
+        old_msg = ""
+        print("Training....", end='\r')
+
         for i, (data) in enumerate(data_loader):
 
             padded_mixture, mixture_lengths, padded_source = data
@@ -214,21 +217,13 @@ class Trainer(object):
             total_loss += loss.item()
 
             if i % self.print_freq == 0:
+                old_msg = self.print_loss( old_msg,
+                                            "Epoch" + str(epoch+1), 
+                                            i+1, 
+                                            '{0:.4f}'.format(total_loss/(i+1)), 
+                                            '{0:.4f}'.format(loss.item()),
+                                            '{0:.4f}'.format((time.time()-start_time)/(i+1)) )
                 
-                self.print_loss( "Epoch" + str(epoch+1), 
-                                 i+1, 
-                                '{0:.4f}'.format(total_loss/(i+1)), 
-                                '{0:.4f}'.format(loss.item()),
-                                '{0:.4f}'.format((time.time()-start_time)/(i+1)) )
-
-                # print('Epoch {0} \t  {1} \t {2:.3f} \t {3:.3f} \t {4:.1f} '.format(
-                #     epoch+1,
-                #     i+1,
-                #     total_loss/(i+1),
-                #     loss.item(),
-                #     (time.time()-start_time)/(i+1)),
-                #     flush=True)
-
             # Clean Memory
             gc.collect()
             torch.cuda.empty_cache()
@@ -236,11 +231,17 @@ class Trainer(object):
         return total_loss/(i+1)
 
 
-    def print_loss(self,  epoch_no , iter_no , total_loss, curr_loss, time ):
+    def print_loss(self, msg, epoch_no , iter_no , total_loss, curr_loss, time ):
         c1 = 9 - len(epoch_no)
         c2 = 9 - len(str(iter_no))
         c3 = 13 - len(str(total_loss))
         c4 = 15 - len(str(curr_loss))
 
-        print(epoch_no , ' '*c1, iter_no ,' '*c2, total_loss , ' '*c3, curr_loss , ' '*c4, time)
+        print(" " * len(msg), end='\r')
+
+        msg = epoch_no + (' '*c1) + str(iter_no) + (' '*c2) + str(total_loss) + str(' '*c3) +  str(curr_loss) + (' '*c4) + str(time)
+
+        # print(epoch_no , ' '*c1, iter_no ,' '*c2, total_loss , ' '*c3, curr_loss , ' '*c4, time)
+        print(msg, end='\r')
+        return msg
 
