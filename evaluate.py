@@ -6,7 +6,6 @@ from dataset.data import AudioDataLoader, AudioDataset
 from src.pit_criterion import cal_loss_no
 from model.sepformer import Sepformer
 from src.utils import remove_pad
-import json5
 
 import os
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
@@ -98,19 +97,25 @@ def main(config):
     total_SDRi = 0
     total_cnt = 0
 
-    model = Sepformer.load_model("./checkpoint/epoch5.pth.tar")
-    model.eval()  # 将模型设置为验证模式
+    model_path = './checkpoint/final.path.tar'
+
+    model = Sepformer.load_model(model_path)
+    model.eval()
 
     if torch.cuda.is_available():
         model.cuda()
 
     # 加载数据
-    dataset = AudioDataset(config["evaluate_dataset"]["data_dir"],
-                           config["evaluate_dataset"]["batch_size"],
-                           sample_rate=config["evaluate_dataset"]["sample_rate"],
-                           segment=config["evaluate_dataset"]["segment"])
+    
+    dataset = AudioDataset(json_dir = "./json/tt",  # The directory contains mix.json, s1.json, s2.json
+                              batch_size = 1,                  # Betch Size
+                              sample_rate = 4000,              # Sampling Rate
+                              segment = -1,                    # Voice duration in sec
+                              cv_max_len = 10 )                # CV max Length
+    
+    
 
-    data_loader = AudioDataLoader(dataset, batch_size=1, num_workers=2)
+    data_loader = AudioDataLoader(dataset, batch_size=1, num_workers=0)
 
     # 不计算梯度
     with torch.no_grad():
@@ -165,16 +170,8 @@ def main(config):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Evaluate Speech Separation Performance")
+    config = {
+        "cal_sdr": True
+    }
 
-    parser.add_argument("-C",
-                        "--configuration",
-                        default="./config/test/evaluate.json5",
-                        type=str,
-                        help="Configuration (*.json).")
-
-    args = parser.parse_args()
-
-    configuration = json5.load(open(args.configuration))
-
-    main(configuration)
+    main(config)

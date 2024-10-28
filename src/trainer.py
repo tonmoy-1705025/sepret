@@ -178,6 +178,10 @@ class Trainer(object):
     """
     def _run_one_epoch(self, epoch, cross_valid=False):
 
+        # Clean Memory
+        gc.collect()
+        torch.cuda.empty_cache()
+
         start_time = time.time()
 
         total_loss = 0

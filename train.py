@@ -92,7 +92,7 @@ if __name__ == '__main__':
     config = {
                 "train": {
                         "use_cuda": False,
-                        "epochs": 5,
+                        "epochs": 1,
                         "half_lr": True,
                         "early_stop": True,
                         "max_norm": 5,
